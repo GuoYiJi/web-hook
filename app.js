@@ -5,7 +5,7 @@ const PORT = 9988
   , PATH = '../html'
 
 var deployServer = http.createServer(function(request, response) {
-  const url = request.query.url
+  const url = request.url.replace('/?url=', '')
   switch (url) {
     case 'test-demo':
       var commands = [
