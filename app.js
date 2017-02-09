@@ -31,6 +31,24 @@ var deployServer = http.createServer(function(request, response) {
     response.end('Not Found.')
 
   }
+  if (request.url.search(/test-demo\/?$/i) > 0) {
+    var commands = [
+      'cd /bookdata/guoyj/test-demo',
+      'git pull origin master'
+    ].join(' && ')
+
+    exec(commands, function(err, out, code) {
+      if (err instanceof Error) {
+        response.writeHead(500)
+        response.end('Server Internal Error.')
+        throw err
+      }
+      process.stderr.write(err)
+      process.stdout.write(out)
+      response.writeHead(200)
+      response.end('Build Done.')
+    })
+  }
 })
 
 deployServer.listen(PORT)
