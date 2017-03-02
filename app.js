@@ -21,7 +21,7 @@ var deployServer = http.createServer(function(request, response) {
 
       exec(commands, function(err, out, code) {
         if (err instanceof Error || code) {
-          let endTime = Date.now() - startTime + ' ms'
+          var endTime = Date.now() - startTime + ' ms'
 
           response.writeHead(500)
           response.end(JSON.stringify({
@@ -29,14 +29,14 @@ var deployServer = http.createServer(function(request, response) {
             msg: err,
             time: endTime
           }))
-          
+
           email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包失败，用时：' + endTime + '，错误信息：' + err).then(data => {
           }, err => {
           })
         } else {
           // process.stderr.write(err)
           // process.stdout.write(out)
-          let endTime = Date.now() - startTime + ' ms'
+          var endTime = Date.now() - startTime + ' ms'
 
           response.writeHead(200)
           response.end(JSON.stringify({
