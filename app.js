@@ -16,7 +16,7 @@ var deployServer = http.createServer(function(request, response) {
         'git stash',
         'git checkout develop',
         'git pull',
-        'sudo npm run build'
+        'npm run build'
       ].join(' && ')
 
       exec(commands, function(err, out, code) {
