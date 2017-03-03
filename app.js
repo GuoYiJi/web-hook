@@ -31,7 +31,7 @@ var deployServer = http.createServer(function(request, response) {
       ].join(' && ')
       fnExec(commands).then(() => {
         let startTime = Date.now()
-        fnExec('npm run build').then(() => {
+        fnExec('cd /bookdata/guoyj/Up-h5 && npm run build').then(() => {
           let endTime = Date.now() - startTime + ' ms'
           email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包成功，用时：' + endTime).then(data => {
           }, err => {
