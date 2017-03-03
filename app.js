@@ -6,50 +6,66 @@ var http = require('http')
 const PORT = 9988
   , PATH = '../html'
 
+function fnExec(commands){
+  return new Promise((resolve, reject) => {
+    exec(commands, function (err, out, code){
+      if (err instanceof Error || code) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
 var deployServer = http.createServer(function(request, response) {
   const url = request.url.replace('/?url=', '')
   switch (url) {
     case 'up-build':
-      var startTime = Date.now()
+      response.writeHead(200)
+      response.end('Success')
       var commands = [
         'cd /bookdata/guoyj/Up-h5',
         'git stash',
         'git checkout develop',
-        'git pull',
-        'npm run build'
+        'git pull'
       ].join(' && ')
-
-      exec(commands, function(err, out, code) {
-        if (err instanceof Error || code) {
-          var endTime = Date.now() - startTime + ' ms'
-
-          response.writeHead(500)
-          response.end(JSON.stringify({
-            code: code,
-            msg: err,
-            time: endTime
-          }))
-
-          email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包失败，用时：' + endTime + '，错误信息：' + err).then(data => {
-          }, err => {
-          })
-        } else {
-          // process.stderr.write(err)
-          // process.stdout.write(out)
-          var endTime = Date.now() - startTime + ' ms'
-
-          response.writeHead(200)
-          response.end(JSON.stringify({
-            code: code,
-            msg: 'success',
-            time: endTime
-          }))
-
+      fnExec(commands).then(() => {
+        let startTime = Date.now()
+        fnExec('npm run build').then(() => {
+          let endTime = Date.now() - startTime + ' ms'
           email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包成功，用时：' + endTime).then(data => {
           }, err => {
           })
-        }
+        }, err => {
+
+          email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包失败，错误信息：' + err).then(data => {
+          }, err => {
+          })
+        })
+      }, err => {
+
+        email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包失败，错误信息：' + err).then(data => {
+        }, err => {
+        })
       })
+      // exec(commands, function(err, out, code) {
+      //   var endTime = Date.now() - startTime + ' ms'
+      //   if (err instanceof Error || code) {
+      //     var endTime = Date.now() - startTime + ' ms'
+      //     email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包失败，用时：' + endTime + '，错误信息：' + err).then(data => {
+      //     }, err => {
+      //     })
+      //   } else {
+      //     exec('npm run build', function (){
+
+      //     })
+      //     var endTime = Date.now() - startTime + ' ms'
+
+      //     email.sendEmail('Up [release] ' + date.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'), '打包成功，用时：' + endTime).then(data => {
+      //     }, err => {
+      //     })
+      //   }
+      // })
 
 
       break
